@@ -15,12 +15,13 @@ import UserTypeing from '../UserTypeing/UserTypeing';
 type Props = {
     groupId: any,
     socket: any,
-    openSidebar: number
+    openSidebar: number,
+    onlineUsers: string[]
 }
 
-export const GroupChat = (props: Props) => {
+const GroupChat = (props: Props) => {
 
-    const { groupId, socket, openSidebar } = props;
+    const { groupId, socket, openSidebar, onlineUsers } = props;
     const { loginUser, selectedGroup, deleteTextLoading, allMessageDeleteLoading } = useAppSelector(state => state.data);
     const [currentMessage, setCurrentMessage] = useState<any>('');
     const [photoUrl, setPhotoUrl] = useState<string>('');
@@ -33,7 +34,7 @@ export const GroupChat = (props: Props) => {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`https://chat-server-ff4u.onrender.com/group/groupchat/${selectedGroup.groupId}`)
+        axios.get(`http://localhost:8080/group/groupchat/${selectedGroup.groupId}`)
             .then(res => {
                 setLoading(false);
                 dispatch(getGroupChat(res.data));
@@ -55,7 +56,7 @@ export const GroupChat = (props: Props) => {
 
         };
         try {
-            await axios.post(`https://chat-server-ff4u.onrender.com/chat`, messageData);
+            await axios.post(`http://localhost:8080/chat`, messageData);
             setPhotoUrl('');
         } catch (err) {
             console.error(err)
@@ -177,7 +178,7 @@ export const GroupChat = (props: Props) => {
                     <Avatar alt="userimage" src={selectedGroup.coverPhoto} />
                     <span>
                         <Typography sx={{ fontSize: 15, color: "#fff" }} variant="h6">{selectedGroup.groupName}</Typography>
-                        <small style={{ color: "#ddd6d6" }}>Online</small>
+                        <small style={{ color: "#ddd6d6" }}></small>
                     </span>
                 </Box>
 
@@ -186,6 +187,7 @@ export const GroupChat = (props: Props) => {
                     <ExpendMenu
                         openSidebar={openSidebar}
                         group={true}
+                        onlineUsers={onlineUsers}
                     />
                 </Box>
 
@@ -318,3 +320,5 @@ export const GroupChat = (props: Props) => {
         </>
     )
 }
+
+export default GroupChat

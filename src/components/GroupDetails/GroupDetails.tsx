@@ -4,10 +4,13 @@ import { HiOutlineArrowSmDown } from 'react-icons/hi';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // import { ExpandLessIcon } from '@mui/icons-material';
 import { useAppSelector } from '../Redux/hooks';
+import { ActiveBadge } from '../ActiveBadge/ActiveBadge';
 
-type Props = {}
+type Props = {
+    onlineUsers: string[]
+}
 
-const GroupDetails = (props: Props) => {
+const GroupDetails = ({onlineUsers}:{onlineUsers:string[]}) => {
 
     const { selectedGroup, allUsers, groupChat } = useAppSelector(state => state.data);
     const [groupMembers, setGroupMembers] = useState<any[]>([]);
@@ -73,7 +76,7 @@ const GroupDetails = (props: Props) => {
 
             <Typography variant='h6' sx={groupTitle}>{selectedGroup?.groupName}</Typography>
 
-            <Accordion sx={{ mt: 2, background: "#4E426D" }}>
+            <Accordion defaultExpanded sx={{ mt: 2, background: "#4E426D" }}>
 
                 <AccordionSummary
                     expandIcon={<HiOutlineArrowSmDown style={{ color: "whitesmoke" }} />}
@@ -88,11 +91,12 @@ const GroupDetails = (props: Props) => {
                             key={member._id}
                             sx={groupPerson}
                         >
+                           {onlineUsers.includes(member.uid) ? <ActiveBadge width={40} height={40} photoURL={member?.photoURL} /> :
                             <Avatar
                                 src={member?.photoURL}
                                 alt={member?.displayName}
                                 sx={{ border: '1px solid #4E426D' }}
-                            />
+                            />}
 
                             <Typography
                                 variant='body2'

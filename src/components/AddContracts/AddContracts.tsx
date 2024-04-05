@@ -22,7 +22,7 @@ const AddContracts = ({ socket }: any) => {
     // add contact user function
     const addContract = (selectUser: any) => {
         setLoading(true);
-        axios.post(`https://chat-server-ff4u.onrender.com/users/addcontract/${loginUser?.uid}`, { uid: selectUser.uid }).then(res => {
+        axios.post(`http://localhost:8080/users/addcontract/${loginUser?.uid}`, { uid: selectUser.uid }).then(res => {
             socket?.current?.emit('addedUser', { userId: loginUser?.uid });
             setLoading(false);
             setLoadUser(true);

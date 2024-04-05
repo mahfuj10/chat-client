@@ -87,7 +87,7 @@ export const useFirebase = () => {
                 setLoading(false);
 
 
-                axios.get(`https://chat-server-ff4u.onrender.com/users/checkuser/${user?.uid}`)
+                axios.get(`http://localhost:8080/users/checkuser/${user?.uid}`)
                     .then(res => {
                         if (res.data.newUser === true) {
                             saveUser(userData, 'PUT');
@@ -97,7 +97,7 @@ export const useFirebase = () => {
 
                 // saveUser(userData, 'PUT')
 
-                // fetch('https://chat-server-ff4u.onrender.com/users', {
+                // fetch('http://localhost:8080/users', {
                 //     method: 'PUT',
                 //     headers: {
                 //         'content-type': 'application/json'
@@ -106,7 +106,7 @@ export const useFirebase = () => {
                 // })
                 //     .then()
                 // empty dependency array means this effect will only run once (like componentDidMount in classes)
-                // axios.post(`https://chat-server-ff4u.onrender.com/users`, user)
+                // axios.post(`http://localhost:8080/users`, user)
             }).catch((error) => {
                 setError(error.message);
             }).finally(() => setLoading(false));
@@ -133,7 +133,7 @@ export const useFirebase = () => {
 
     // save user on database 
     const saveUser = (data: object, method: string) => {
-        fetch('https://chat-server-ff4u.onrender.com/users', {
+        fetch('http://localhost:8080/users', {
             method: method,
             headers: {
                 'content-type': 'application/json'

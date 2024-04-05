@@ -137,7 +137,7 @@ export default function UserSetting() {
 
     // load user
     useEffect(() => {
-        axios.get(`https://chat-server-ff4u.onrender.com/users/singleuser/${userId}`)
+        axios.get(`http://localhost:8080/users/singleuser/${userId}`)
             .then(res => {
                 setUser(res.data);
                 setLoading(false);
@@ -177,7 +177,7 @@ export default function UserSetting() {
 
         setProfileUpdateing(true);
 
-        await axios.put(`https://chat-server-ff4u.onrender.com/users/updateprofile/${matchUser.uid}`, { photoURL: photoUrl })
+        await axios.put(`http://localhost:8080/users/updateprofile/${matchUser.uid}`, { photoURL: photoUrl })
             .then(() => {
                 updatePhotoAndName(loginUser.displayName, photoUrl);
                 setProfileUpdateing(false);

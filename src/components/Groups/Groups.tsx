@@ -1,76 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Skeleton, Typography } from '@mui/material';
+import { Box, Skeleton, Typography } from '@mui/material';
 import GroupsModal from './GroupsModal';
 import { useAppDispatch, useAppSelector } from '../Redux/hooks';
 import Group from './Group';
 import './Groups.css';
-import { gellAllGroups, getJoinedGroups, saveCreatedGroup } from '../Redux/counterSlice';
+import { getJoinedGroups } from '../Redux/counterSlice';
 
 const Groups = ({ socket, handleAddRoomId }: any) => {
 
     const [open, setOpen] = React.useState<boolean>(false);
     const [myGroups, setMyGroups] = useState<any[]>([]);
     const dispatch = useAppDispatch();
-    const { loginUser, allUsers, allGroups, createdGroup, groupsDataLoading } = useAppSelector(state => state?.data);
+    const { loginUser, allUsers, allGroups, groupsDataLoading } = useAppSelector(state => state?.data);
     const currentUser = allUsers?.find(user => user?.uid === loginUser?.uid);
-    const [joinedGroup, setJoingroup] = useState({});
-    const groups: any[] = [];
-
-    useEffect(() => {
-        if (groupsDataLoading) return;
-    }, []);
 
 
-
-
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
-    const handleClose = () => setOpen(false);
-
-    // handle Reload Group
-    const handleReloadGroup = (loading: boolean) => {
-        dispatch(gellAllGroups());
-    };
-
-
-
-    // useEffect(() => {
-    //     if (currentUser?.groups?.length === 0) {
-    //         return;
-    //     }
-    // }, [loginUser])
-
-    // match group user
     useEffect(() => {
 
         if (!currentUser?.groups) return;
-
+    
+        const groups: any[] = [];
+    
         for (let groupID of currentUser?.groups) {
             const matchGroup = allGroups?.find(group => group.groupId === groupID);
             groups.push(matchGroup);
         };
-
-        if (createdGroup?.groupName) {
-            groups.push(createdGroup);
-        }
-
+    
         setMyGroups(groups);
         dispatch(getJoinedGroups(groups));
-    }, [joinedGroup, allGroups, createdGroup, currentUser?.groups, dispatch, groups]);
-
+    }, [allGroups, currentUser?.groups, dispatch]);
 
 
     useEffect(() => {
         socket.current?.on('joinedgroup', function (data: any) {
-            setJoingroup(data);
-            console.log('joined',)
-            dispatch(gellAllGroups());
-            dispatch(saveCreatedGroup(data));
+            setMyGroups(prev => [...prev, data])
+            console.log('joined',data)
         });
     }, [socket, dispatch])
 
+    const handleAddCreatedGroup = (data: any) => {
+        setMyGroups(prev => [...prev, data])
+    } 
+
+    const handleOpen = () => setOpen(true);
+
+    const handleClose = () => setOpen(false);
+    
     // stylesheet
     const textStyle = {
         mb: 2,
@@ -84,6 +59,9 @@ const Groups = ({ socket, handleAddRoomId }: any) => {
     return (
 
         <>
+                <button type='button' onClick={handleOpen} className='creatGroupBtn'>CREATE GROUP</button>
+
+
             {
                 myGroups?.length !== 0 && !groupsDataLoading && <Box sx={{ height: 550, overflowY: 'scroll' }}>
 
@@ -123,17 +101,14 @@ const Groups = ({ socket, handleAddRoomId }: any) => {
                 </Typography>
             }
 
-            <span style={{ display: 'flex', justifyContent: 'center' }}>
-                <button type='button' onClick={handleOpen} className='creatGroupBtn'>CREATE GROUP</button>
-            </span>
+           
 
 
             <GroupsModal
                 socket={socket}
-                handleOpen={handleOpen}
                 open={open}
-                handleReloadGroup={handleReloadGroup}
                 handleClose={handleClose}
+                handleAddCreatedGroup={handleAddCreatedGroup}
             />
         </>
     )

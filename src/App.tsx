@@ -18,7 +18,7 @@ const App = () => {
     dispatch(gellAllGroups());
     dispatch(getAllUsers());
   }, [loginUser]);
-  // https://chat-server-ff4u.onrender.com
+  // http://localhost:8080
 
   return (
 

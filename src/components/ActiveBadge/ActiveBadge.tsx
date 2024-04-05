@@ -34,7 +34,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 
-export const ActiveBadge = ({ photoURL }: any) => {
+export const ActiveBadge = ({ photoURL, width = 50, height = 50}: {photoURL: string, width?: number, height?: number}) => {
 
     return (
 
@@ -46,8 +46,8 @@ export const ActiveBadge = ({ photoURL }: any) => {
             >
                 <Avatar
                     sx={{
-                        width: { xs: 30, md: 50 },
-                        height: { xs: 30, md: 50 },
+                        width: { xs: 30, md: width },
+                        height: { xs: 30, md: height },
                     }}
                     alt="Remy Sharp"
                     src={photoURL}

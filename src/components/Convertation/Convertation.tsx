@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../Redux/hooks';
 import { getAllUsers, myConvertations, selectUser } from '../Redux/counterSlice';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 
-function Covertation({ socket, roomId, uid, addConverationRoute, handleDrawerOpen, selectChatBox }: any) {
+function Covertation({ socket, roomId, uid, addConverationRoute, handleDrawerOpen, selectChatBox, onlineUsers }: any) {
 
     const [newUsers, setNewUsers] = useState<object>({});
 
@@ -37,6 +37,7 @@ function Covertation({ socket, roomId, uid, addConverationRoute, handleDrawerOpe
         dispatch(myConvertations(contractAllUsers));
 
     }, [loginUser, usersDataLoading, newUsers]);
+    
 
     // match user by serach name
     const matchUsers = convertationUsers.filter(user => user.displayName?.toLowerCase()?.includes(searchText?.toLowerCase()));
@@ -79,10 +80,11 @@ function Covertation({ socket, roomId, uid, addConverationRoute, handleDrawerOpe
 
             {
                 matchUsers.map((convertionalUser, index) => <CovertationUser
-                    key={loginUser._id}
+                    key={convertionalUser._id}
                     convertionalUser={convertionalUser}
                     uid={uid}
                     socket={socket}
+                    onlineUsers={onlineUsers}
                     selectChatBox={selectChatBox}
                     roomId={roomId}
                 />

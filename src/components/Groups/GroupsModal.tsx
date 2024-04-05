@@ -24,7 +24,7 @@ const style = {
 
 
 
-export default function GroupsModal({ socket, handleOpen, open, handleClose, handleReloadGroup }: any) {
+export default function GroupsModal({ socket, handleOpen, open, handleClose, handleAddCreatedGroup }: any) {
 
     // const classes = useStyles();
 
@@ -83,9 +83,8 @@ export default function GroupsModal({ socket, handleOpen, open, handleClose, han
 
 
         try {
-            await axios.post('https://chat-server-ff4u.onrender.com/group', data);
+            await axios.post('http://localhost:8080/group', data);
           
-            setLoading(false);
             dispatch(reseatGroupMembers(0));
             handleClose();
             setActiveStep(0);
@@ -93,14 +92,17 @@ export default function GroupsModal({ socket, handleOpen, open, handleClose, han
             socket.current.emit('joinedgroup', data);
             
             for (let member of selectedGroupMembers) {
-                await axios.post(`https://chat-server-ff4u.onrender.com/group/saveinuserdata/${member.uid}`, { groupId });
+                await axios.post(`http://localhost:8080/group/saveinuserdata/${member.uid}`, { groupId });
             };
             // for currernt user
-            await axios.post(`https://chat-server-ff4u.onrender.com/group/saveinuserdata/${loginUser.uid}`, { groupId });
+            await axios.post(`http://localhost:8080/group/saveinuserdata/${loginUser.uid}`, { groupId });
+
+            handleAddCreatedGroup(data)
         }
         catch (err: any) {
             console.error(err.message);
         }
+        setLoading(false);
     };
 
     // handle select group member
@@ -109,7 +111,7 @@ export default function GroupsModal({ socket, handleOpen, open, handleClose, han
     };
 
     // hanlde remove member
-    const handleRemoveMemver = (uid: string) => {
+    const handleRemoveMember = (uid: string) => {
         dispatch(removeFromSelectedPeople(uid));
     };
 
@@ -203,22 +205,24 @@ export default function GroupsModal({ socket, handleOpen, open, handleClose, han
                                             </Box>
 
                                             {
-                                                selectedGroupMembers[index]?.uid === user?.uid ?
-                                                    <Button sx={btnStyle}
-                                                        onClick={() => handleRemoveMemver(user.uid)}
-                                                        variant="outlined"
-                                                    >
-                                                        REMOVE
-                                                    </Button>
-                                                    :
-                                                    <Button onClick={
-                                                        () => handleSelectMember(user)}
-                                                        sx={btnStyle}
-                                                        variant="outlined"
-                                                    >
-                                                        Add
-                                                    </Button>
-                                            }
+  selectedGroupMembers.find(member => member.uid === user.uid) ? (
+    <Button
+      sx={btnStyle}
+      onClick={() => handleRemoveMember(user.uid)}
+      variant="outlined"
+    >
+      REMOVE
+    </Button>
+  ) : (
+    <Button
+      onClick={() => handleSelectMember(user)}
+      sx={btnStyle}
+      variant="outlined"
+    >
+      Add
+    </Button>
+  )
+}
                                         </Box>
                                         )
                                     }
@@ -292,7 +296,7 @@ export default function GroupsModal({ socket, handleOpen, open, handleClose, han
                                         }}
                                             loading variant="outlined"
                                         >
-                                            Submit
+                                            Loading...
                                         </LoadingButton>
                                         :
                                         <Button

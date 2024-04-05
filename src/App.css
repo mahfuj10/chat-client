@@ -28,6 +28,7 @@ body {
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
+    background-color: #4E426D;
     overflow-x: hidden;
 }
 
@@ -250,11 +251,12 @@ body {
 #search_field {
     background-color: #4E426D;
     padding: 13px;
-    width: 100%;
+    width: 11%;
     display: block;
     margin-bottom: 15px;
     border: 1px solid #fff;
     color: white;
+    transition: 0.5s;
 }
 
 #search_field::placeholder {
@@ -264,12 +266,13 @@ body {
 
 #search_field:focus {
     outline: none;
+    width: 90%;
 }
 
 
 .delete_button {
     display: none !important;
-    transition: 0.5s;
+    transition: 0.3s;
 }
 
 #myMessage:hover .delete_button {

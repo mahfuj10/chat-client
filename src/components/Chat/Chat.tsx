@@ -12,10 +12,9 @@ import Message from '../Message/Message';
 import '../../App.css';
 import { ExpendMenu } from './ExpendMenu';
 import UserTypeing from '../UserTypeing/UserTypeing';
-import MessageLoading from '../MessageLoading/MessageLoading';
 
 
-function Chat({ socket, roomId }: any) {
+function Chat({ socket, roomId, onlineUsers }: any) {
 
     const { user } = useFirebase();
     const { register, watch, setValue, } = useForm();
@@ -26,29 +25,30 @@ function Chat({ socket, roomId }: any) {
     const [messageList, setMessageList] = useState<any[]>([]);
     const [typeingUser, setTypeingUser] = useState<any>({});
     const [textLoading, setTextLoading] = useState<boolean>(false);
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [unreadMessageCount, setUnreadMessageCount] = useState(0);
     const [audio] = useState(new Audio('../../utlis/message.mp3'));
-
 
 
     // load message 
     useEffect(() => {
-
-
         const getMessages = async () => {
             try {
-                await axios.get(`https://chat-server-ff4u.onrender.com/chat/${roomId}`)
+                await axios.get(`http://localhost:8080/chat/${roomId}`)
                     .then(res => {
                         setMessageList(res.data);
                     });
+                
+                const unreadMessages = messageList.filter(message => !message.read)
+                if(unreadMessageCount > 0){
+                    await readMessages()
+                }
+                setUnreadMessageCount(unreadMessages.length)
             } catch (err) {
                 console.error(err);
             };
         };
         getMessages();
     }, [roomId, selectedUser, deleteTextLoading, allMessageDeleteLoading]);
-
-
 
 
     // message data
@@ -60,10 +60,13 @@ function Chat({ socket, roomId }: any) {
             image: user.photoURL,
             userId: user.uid,
             picture: photoUrl,
-            time: Date.now(),
+            read: false,
+            time: Date.now()
         };
         try {
-            await axios.post(`https://chat-server-ff4u.onrender.com/chat`, messageData).then(() => setTextLoading(false));
+            await axios.post(`http://localhost:8080/chat`, messageData)
+            console.log(messageData);
+            setTextLoading(false);
             setPhotoUrl('');
         } catch (err) {
             console.error(err)
@@ -72,7 +75,6 @@ function Chat({ socket, roomId }: any) {
         await socket.current.emit("send_message", messageData);
         await socket.current.emit('chatSound');
         setMessageList((list) => [...list, messageData]);
-        // dispatch(setMessageLists((list: any) => [...list, messageData]));
         setPhotoUrl('');
         setCurrentMessage("");
     };
@@ -113,32 +115,35 @@ function Chat({ socket, roomId }: any) {
 
     }, [watch('picFile')]);
 
+    async function readMessages(){
+      try{
+        const res = await axios.put(`http://localhost:8080/chat/read_messages?roomId=${roomId}`)
+        // console.log(res);
+        console.log('object', res);
+      }catch(err){
+        console.log(err);
+      }
+    }
 
     // recive message from another person
     useEffect(() => {
-
-
-        socket.current?.on("recive_message", (data: any) => {
-
+        const handleReceiveMessage = (data: any) => {
             const upcomeingMessages: any[] = [...messageList, data];
-            // upcomeingMessages.push(data);
-
             setTypeingUser({});
-
-            if (!notifications.includes(data)) {
-                setNotifications([data, ...notifications]);
-            };
-
-            socket.current.on('play', function () {
-                // sound.play();
-                // console.log('first')
-            });
-
             setMessageList(upcomeingMessages);
-
-        })
-    }, [messageList, currentMessage, selectedUser, socket?.current])
-    //  currentMessage, selectedUser socket?.current,
+            
+            if (data.userId === selectedUser.uid) {
+                readMessages();
+            }
+        };
+    
+        socket.current?.on("recive_message", handleReceiveMessage);
+    
+        return () => {
+            socket.current?.off("recive_message", handleReceiveMessage);
+        };
+    }, [messageList, selectedUser, socket]);
+    
 
     // user typeing message function
     const userData = { name: loginUser.displayName, photo: loginUser.photoURL, roomId, uid: loginUser.uid }
@@ -146,25 +151,34 @@ function Chat({ socket, roomId }: any) {
     const userTypeing = () => {
         socket?.current.emit('typing', userData);
     };
-
-    // 
-
-
+ 
     useEffect(() => {
-        document?.getElementById("message_field")?.addEventListener('focusout', () => {
+        const handleFocusOut = () => {
             socket?.current.emit('typing', {});
-        })
-        socket?.current?.on('typing', function (data: any) {
+        };
+    
+        const handleTyping = (data:any) => {
             setTypeingUser(data);
-        })
-        socket?.current?.on("deleteMessage", function (data: any) {
+        };
+    
+        const handleDeleteMessage = (data:any) => {
             const filterMessages = messageList?.filter(message => message._id !== data._id);
             setMessageList(filterMessages);
-        })
-        if (currentMessage === '') {
-            socket?.current?.emit('typing', {});
-        }
-    }, [socket, messageList,]);
+        };
+    
+        document?.getElementById("message_field")?.addEventListener('focusout', handleFocusOut);
+        socket?.current?.on('typing', handleTyping);
+        socket?.current?.on("deleteMessage", handleDeleteMessage);
+    
+        // Cleanup function
+        return () => {
+            document?.getElementById("message_field")?.removeEventListener('focusout', handleFocusOut);
+            socket?.current?.off('typing', handleTyping);
+            socket?.current?.off("deleteMessage", handleDeleteMessage);
+        };
+    
+    }, [socket, messageList, currentMessage]);
+    
 
     // styleSheet
     const chatHeader = {
@@ -181,11 +195,9 @@ function Chat({ socket, roomId }: any) {
 
 
     return (
-
         <>
             {/* chat header */}
-
-
+{/* {unreadMessageCount} */}
             <Box sx={chatHeader}>
 
                 <Box sx={{ display: 'flex', gap: 2 }}>
@@ -197,7 +209,11 @@ function Chat({ socket, roomId }: any) {
                             {selectedUser.displayName}
                         </Typography>
 
-                        <small style={{ color: "#ddd6d6" }}>Online</small>
+                        <small style={{ color: "#ddd6d6" }}>
+                            { 
+                                 onlineUsers.includes(selectedUser.uid) ? 'Online' : '' 
+                            }
+                        </small>
 
                     </span>
 

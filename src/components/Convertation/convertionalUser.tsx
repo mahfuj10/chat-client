@@ -1,65 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Avatar, Box, Typography } from '@mui/material';
 import { MdReply } from 'react-icons/md';
-import { useAppDispatch, useAppSelector } from '../Redux/hooks';
+import { useAppDispatch } from '../Redux/hooks';
 import { selectUser } from '../Redux/counterSlice';
 import { ActiveBadge } from '../ActiveBadge/ActiveBadge';
-import { useFirebase } from '../hooks/useFirebase';
 
 
-function CovertationUser({ convertionalUser, socket, uid, selectChatBox }: any) {
-
-
+function CovertationUser({ convertionalUser, socket, uid, selectChatBox, onlineUsers }: any) {
     const dispatch = useAppDispatch();
-    const [matchUser, setMatchUser] = useState<any>({});
-    const [onlineUsers, setOnlineUsers] = useState([])
-    const {user} = useFirebase()
-
-
-    useEffect(() => {
-        socket.current.emit("new-user-add", user.uid);
-        socket.current.on("get-users", (users:any) => {
-          setOnlineUsers(users);
-        });
-      }, [uid]);
-
-      useEffect(() => {
-        // Tab has focus
-        const handleFocus = async () => {
-          socket.current.emit("new-user-add", user.uid);
-          socket.current.on("get-users", (users:any) => {
-            setOnlineUsers(users);
-          });
-        };
-    
-        // Tab closed
-        const handleBlur = () => {
-          if(uid) {
-            socket.current.emit("offline")   
-          }
-        };
-    
-        // Track if the user changes the tab to determine when they are online
-        window?.addEventListener('focus', handleFocus);
-        window?.addEventListener('blur', handleBlur);
-    
-        return () => {
-          window?.removeEventListener('focus', handleFocus);
-          window?.removeEventListener('blur', handleBlur);
-        };   
-      }, [uid]);
-
-      
-      function extractOnlineUsers(){
-          const arr = []
-          if(onlineUsers.length < 1) return []
-          for(const user of onlineUsers as any){
-              arr.push(user.userId)
-            }
-            return arr
-        }
-        
-        console.log('sdfsdf',extractOnlineUsers());
+     
     return (
 
         <>
@@ -80,11 +29,9 @@ function CovertationUser({ convertionalUser, socket, uid, selectChatBox }: any) 
                 }}>
 
                 {/* ActiveBadge */}
-
                 {
-                    extractOnlineUsers().includes(convertionalUser?.uid) ?
-                        <ActiveBadge 
-                        src={convertionalUser.photoURL} />
+                    onlineUsers.includes(convertionalUser.uid) ?
+                       <ActiveBadge photoURL={convertionalUser.photoURL} />
                         :
                         <Avatar
                             alt="user photo"

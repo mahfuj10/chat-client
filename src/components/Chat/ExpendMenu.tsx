@@ -16,7 +16,7 @@ import GroupDetails from '../GroupDetails/GroupDetails';
 const drawerWidth = { xs: '100%', sm: '60%', md: 350 };
 
 
-export const ExpendMenu = ({ roomId, group, openSidebar }: any) => {
+export const ExpendMenu = ({ roomId, group, openSidebar, onlineUsers }: any) => {
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -132,7 +132,7 @@ export const ExpendMenu = ({ roomId, group, openSidebar }: any) => {
                 }
 
                 {
-                    openSidebar === 11 && <GroupDetails />
+                    openSidebar === 11 && <GroupDetails onlineUsers={onlineUsers} />
                 }
 
 

@@ -56,7 +56,7 @@ const initialState: DataState = {
 export const getAllMessages = createAsyncThunk(
   'messsages/data',
   async (roomID: number) => {
-    const response = await axios.get(`https://chat-server-ff4u.onrender.com/chat/${roomID}`);
+    const response = await axios.get(`http://localhost:8080/chat/${roomID}`);
     return response.data;
   }
 )
@@ -64,7 +64,7 @@ export const getAllMessages = createAsyncThunk(
 export const getAllUsers = createAsyncThunk(
   'allusers/data',
   async () => {
-    const response = await axios.get(`https://chat-server-ff4u.onrender.com/users`);
+    const response = await axios.get(`http://localhost:8080/users`);
     return response.data;
   }
 )
@@ -72,7 +72,7 @@ export const getAllUsers = createAsyncThunk(
 export const gellAllGroups = createAsyncThunk(
   'allgroups/data',
   async () => {
-    const response = await axios.get('https://chat-server-ff4u.onrender.com/group');
+    const response = await axios.get('http://localhost:8080/group');
     return response.data;
   }
 )
@@ -80,7 +80,7 @@ export const gellAllGroups = createAsyncThunk(
 export const deleteChatMessage = createAsyncThunk(
   'deletemessage/data',
   async (id: any) => {
-    const response: any = await axios.put(`https://chat-server-ff4u.onrender.com/chat/deletemessage/${id}`);
+    const response: any = await axios.put(`http://localhost:8080/chat/deletemessage/${id}`);
     return response.data;
   }
 )
@@ -88,7 +88,7 @@ export const deleteChatMessage = createAsyncThunk(
 export const deleteAllRoomMessage = createAsyncThunk(
   'deleteallmessage/data',
   async (id: any) => {
-    const response: any = await axios.delete(`https://chat-server-ff4u.onrender.com/chat/deleteallmessages/${id}`);
+    const response: any = await axios.delete(`http://localhost:8080/chat/deleteallmessages/${id}`);
     return response.data;
   }
 )
@@ -96,7 +96,7 @@ export const deleteAllRoomMessage = createAsyncThunk(
 export const updateUserName = createAsyncThunk(
   'updateUserName/data',
   async (data: any) => {
-    const response: any = await axios.put(`https://chat-server-ff4u.onrender.com/users/updatename/${data.uid}`, data);
+    const response: any = await axios.put(`http://localhost:8080/users/updatename/${data.uid}`, data);
     return response.data;
   }
 )
@@ -105,7 +105,7 @@ export const updateUserName = createAsyncThunk(
 export const updateUserNumber = createAsyncThunk(
   'updateUserNumber/data',
   async (data: any) => {
-    const response: any = await axios.put(`https://chat-server-ff4u.onrender.com/users/updatennumber/${data.uid}`, data);
+    const response: any = await axios.put(`http://localhost:8080/users/updatennumber/${data.uid}`, data);
     return response.data;
   }
 )
@@ -114,7 +114,7 @@ export const updateUserNumber = createAsyncThunk(
 export const updateUserAddress = createAsyncThunk(
   'updateUserAddress/data',
   async (data: any) => {
-    const response: any = await axios.put(`https://chat-server-ff4u.onrender.com/users/updatenaddress/${data.uid}`, data);
+    const response: any = await axios.put(`http://localhost:8080/users/updatenaddress/${data.uid}`, data);
     return response.data;
   }
 )
@@ -123,7 +123,7 @@ export const updateUserAddress = createAsyncThunk(
 export const updateUserProfession = createAsyncThunk(
   'updateUserProfession/data',
   async (data: any) => {
-    const response: any = await axios.put(`https://chat-server-ff4u.onrender.com/users/updatenprofession/${data.uid}`, data);
+    const response: any = await axios.put(`http://localhost:8080/users/updatenprofession/${data.uid}`, data);
     return response.data;
   }
 )
@@ -149,7 +149,8 @@ export const dataSlice = createSlice({
       state.selectedGroupMembers.push(action.payload);
     },
     removeFromSelectedPeople: (state, action: PayloadAction<any>) => {
-      state.selectedGroupMembers = state.selectedGroupMembers.filter(member => member?.uid !== action.payload);
+      // state.selectedGroupMembers = state.selectedGroupMembers.filter(member => member?.uid !== action.payload);
+      state.selectedGroupMembers = state.selectedGroupMembers.filter(member => member.uid !== action.payload);
     },
     reseatGroupMembers: (state, action: PayloadAction<any>) => {
       state.selectedGroupMembers = [];
